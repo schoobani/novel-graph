@@ -1,8 +1,8 @@
 # Brothers Karamazov Novel Graph with ChatGPT
 
-Brothers Karamaozv is a masterpiece by Fyodor Dostoevsky. The complexity of the characters and their interactions made me build a tool with chatGPT to explore and summarize this masterpiece. Enjoy diving into this Novel Graph: [schoobani.github.io/novel-graph-app](https://schoobani.github.io/novel-graph-app)
+Brothers Karamaozv is a masterpiece by Fyodor Dostoevsky. The complexity of the characters and their interactions made me build a tool with ChatGPT to explore and summarize this masterpiece. Enjoy diving into this Novel Graph: [schoobani.github.io/novel-graph-app](https://schoobani.github.io/novel-graph-app)
 
-![Brothers Karamaozv Novel Graph](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Brothers Karamaozv Novel Graph")
+![Brothers Karamaozv Novel Graph](https://github.com/schoobani/novel-graph/blob/main/screenshot.png "Brothers Karamaozv Novel Graph")
 
 ---
 
