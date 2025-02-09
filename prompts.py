@@ -88,7 +88,35 @@ character_description_prompt = """
 
     5. Output Format: Present the description of each character the following JSON structure:
 
-    desc = {
-        desc: "Character Description"
+    "description" = {
+        "description": "Character Description"
     }
+"""
+
+relation_description_prompt = """
+    Context:
+    You are analyzing the relationship between two characters, _character_A_ and _character_B_, in the novel _book_title_. 
+    Understanding their interactions, conflicts, and development within the story is crucial for literary analysis.
+
+    High level relation points of the characters:
+    _descriptions_
+
+    Objective:
+    Provide a concise yet insightful description of the dynamics between _character_A_ and _character_B_, maintaining the tone and style of the novel.
+
+    Task Breakdown:
+
+    - Summarize the nature of their relationship (e.g., friendship, rivalry, romance, mentorship).
+    - Highlight key moments or developments that shape their interactions.
+    - Capture any emotional, thematic, or symbolic elements tied to their relationship.
+    - Maintain the tone and style of X to reflect the novel’s atmosphere.
+
+    Additional Instructions:
+
+    - Keep the response concise, limited to a single paragraph.
+    - Focus only on key details without excessive elaboration.
+    - If applicable, use language and style that match the novel’s tone.
+    - Avoid extra information or unrelated content such as, here is youre description, etc.
+
+    description: 
 """
