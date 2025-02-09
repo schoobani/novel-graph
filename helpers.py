@@ -79,11 +79,6 @@ With Thanks and regards your friend Antony. mail me to  antonyboban@gmail.com"""
     return final_content
 
 
-def write_json(filename, data, indent=4):
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=indent)
-
-
 def write_jsonl(filename, data):
     with open(filename, "w", encoding="utf-8") as f:
         for entry in data:
@@ -134,3 +129,14 @@ def normalize_characters(text):
         .replace("Ë", "E")
         .replace("ÿ", "y")
     )
+
+
+def read_json(path):
+    with open(path, "r") as f:
+        return json.load(f)
+
+
+def write_json(path, data, indent=4):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(data, f, indent=indent)

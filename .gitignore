@@ -1,1 +1,5 @@
 *.pdf
+tmp
+*.pyc
+.DS_Store
+*.ipynb

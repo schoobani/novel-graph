@@ -1,21 +1,29 @@
 import itertools
-
-from helpers import pars_karamazov, pars_solitude, write_json
-from prompts import (
-    relation_extraction_prompt,
-    character_mapping_prompt,
-    character_description_prompt,
-    relation_description_prompt,
-)
+import logging
 from openai import OpenAI
 import sys
 import os
 import json
 from tqdm import tqdm
 
+from helpers import pars_karamazov, pars_solitude, write_json, read_json
+from prompts import (
+    relation_extraction_prompt,
+    character_mapping_prompt,
+    character_description_prompt,
+    relation_description_prompt,
+)
+
 GRAPHENV = sys.argv[1]
 openai_key = os.getenv("OPENAI_KEY")
 client = OpenAI(api_key=openai_key)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 
 def generate_respons(prompt):
@@ -118,7 +126,7 @@ def extract_characters(relations):
 def generate_character_descriptions(book_title: str, relations: dict) -> dict:
     characters = extract_characters(relations)
     character_descs = {}
-    for character in tqdm(characters, desc=f"Character Descriptions"):
+    for character in tqdm(characters, desc="Character Descriptions"):
         prompt = character_description_prompt.replace(
             "_book_title_", book_title
         ).replace("_character_name_", character)
@@ -173,7 +181,7 @@ def process_relation_description(
     )
 
     response = generate_respons(prompt)
-    
+
     try:
         raw_message = json.loads(response.choices[0].message.function_call.arguments)[
             "message"
@@ -212,85 +220,93 @@ def generate_character_relation_descriptions(
     return relation_descriptions
 
 
-import os
-import json
+def get_paths(graphenv):
+    file_paths = {
+        "karamazov": "data/brothers-karamazov/karamazov.txt",
+        "solitude": "data/one-hundred-years-of-solitude/solitude.pdf",
+    }
+    base_dir = os.path.dirname(file_paths[graphenv])
+    tmp_dir = os.path.join(base_dir, "tmp")
+    os.makedirs(tmp_dir, exist_ok=True)
 
-
-def read_json(path):
-    with open(path, "r") as f:
-        return json.load(f)
-
-
-def write_json(path, data):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2)
-
-
-def main():
-    if GRAPHENV in ["karamazov", "solitude"]:
-        file_paths = {
-            "karamazov": "data/brothers-karamazov/karamazov.txt",
-            "solitude": "data/one-hundred-years-of-solitude/solitude.pdf",
-        }
-
-        # Create tmp directory path
-        base_dir = os.path.dirname(file_paths[GRAPHENV])
-        tmp_dir = os.path.join(base_dir, "tmp")
-        os.makedirs(tmp_dir, exist_ok=True)
-
-        # Define paths for intermediate files
-        tmp_paths = {
+    return {
+        "input": file_paths[graphenv],
+        "base": base_dir,
+        "tmp": {
             "parsed_content": os.path.join(tmp_dir, "parsed_content.json"),
             "relations": os.path.join(tmp_dir, "relations.json"),
             "char_relations": os.path.join(tmp_dir, "character_relations.json"),
             "characters": os.path.join(tmp_dir, "characters.json"),
-        }
+        },
+    }
 
-        # Parse content or load from cache
-        if os.path.exists(tmp_paths["parsed_content"]):
-            parsed_content = read_json(tmp_paths["parsed_content"])
-        else:
-            parse_functions = {"karamazov": pars_karamazov, "solitude": pars_solitude}
-            parsed_content = parse_functions[GRAPHENV](file_paths[GRAPHENV])
-            write_json(tmp_paths["parsed_content"], parsed_content)
 
-        # Generate or load relations
-        if os.path.exists(tmp_paths["relations"]):
-            relations = read_json(tmp_paths["relations"])
-        else:
-            relations = generate_relations(parsed_content)
-            relations = generate_character_mapping(parsed_content, relations)
-            write_json(tmp_paths["relations"], relations)
+def get_or_generate(path, generate_fn, *args):
+    if os.path.exists(path):
+        logger.info(f"Reading from cache: {os.path.basename(path)}")
+        return read_json(path)
 
-        # Generate or load character descriptions
-        if os.path.exists(tmp_paths["characters"]):
-            characters = read_json(tmp_paths["characters"])
-        else:
-            characters = generate_character_descriptions(
-                book_title=parsed_content["title"], relations=relations
-            )
-            write_json(tmp_paths["characters"], characters)
+    logger.info(f"Generating new: {os.path.basename(path)}")
+    data = generate_fn(*args)
+    write_json(path, data)
+    return data
 
-        # Generate or load relation descriptions
-        if os.path.exists(tmp_paths["char_relations"]):
-            relation_descriptions = read_json(tmp_paths["char_relations"])
-        else:
-            relation_descriptions = generate_character_relation_descriptions(
-                relations, characters, relation_description_prompt
-            )
-            write_json(tmp_paths["char_relations"], relation_descriptions)
 
-        # Combine all data into final output
-        graph_data = {
-            "relations": relations,
-            "characters": characters,
-            "character_relations": relation_descriptions,
-        }
+def process_parsed_content(paths, graphenv):
+    parse_functions = {"karamazov": pars_karamazov, "solitude": pars_solitude}
+    return get_or_generate(
+        paths["tmp"]["parsed_content"], parse_functions[graphenv], paths["input"]
+    )
 
-        # Write final output
-        json_path = os.path.join(base_dir, "graph_data.json")
-        write_json(json_path, graph_data)
+
+def process_relations(paths, parsed_content):
+    def generate_full_relations(content):
+        rels = generate_relations(content)
+        return generate_character_mapping(content, rels)
+
+    return get_or_generate(
+        paths["tmp"]["relations"], generate_full_relations, parsed_content
+    )
+
+
+def process_characters(paths, parsed_content, relations):
+    return get_or_generate(
+        paths["tmp"]["characters"],
+        generate_character_descriptions,
+        parsed_content["title"],
+        relations,
+    )
+
+
+def process_char_relations(paths, relations, characters):
+    return get_or_generate(
+        paths["tmp"]["char_relations"],
+        generate_character_relation_descriptions,
+        relations,
+        characters,
+        relation_description_prompt,
+    )
+
+
+def main():
+    if GRAPHENV not in ["karamazov", "solitude"]:
+        return
+
+    paths = get_paths(GRAPHENV)
+    parsed_content = process_parsed_content(paths, GRAPHENV)
+    relations = process_relations(paths, parsed_content)
+    characters = process_characters(paths, parsed_content, relations)
+    relation_descriptions = process_char_relations(paths, relations, characters)
+
+    graph_data = {
+        "relations": relations,
+        "characters": characters,
+        "character_relations": relation_descriptions,
+    }
+
+    json_path = os.path.join(paths["base"], "data.json")
+    write_json(json_path, graph_data)
+    logger.info(f"Final graph data written to {json_path}")
 
 
 if __name__ == "__main__":
