@@ -21,10 +21,15 @@ def pars_karamazov(book_path: str) -> dict[int, dict[str, list[str]]]:
         lines = chapter.split("\n")
         title = "\n".join(lines[:2]).strip()
         body = "\n".join(lines[2:]).strip()
-        parsed_content[i] = {"title": title, "content": chunk_text(body)}
+        parsed_content[i] = {"title": title, "text": chunk_text(body)}
 
+    final_content = {
+        "title": "The Brothers Karamazov",
+        "content": parsed_content,
+    }
     json_path = os.path.join(os.path.dirname(book_path), "karamazov.json")
-    write_json(json_path, parsed_content)
+    write_json(json_path, final_content)
+    return final_content
 
 
 def pars_solitude(book_path) -> dict:
@@ -52,23 +57,48 @@ With Thanks and regards your friend Antony. mail me to  antonyboban@gmail.com"""
     for rstr in replace_strs:
         doc = doc.replace(rstr, "")
 
-    content = {}
+    doc = (
+        doc.replace("ú", "u")
+        .replace("í", "i")
+        .replace("é", "e")
+        .replace("á", "a")
+        .replace("ó", "o")
+        .replace("Ú", "U")
+        .replace("Í", "I")
+        .replace("É", "E")
+        .replace("Á", "A")
+        .replace("Ó", "O")
+        .replace("ï", "i")
+    )
+
+    parsed_content = {}
     for chap in doc.split("Chapter")[1:]:
         chap_id = int(chap.strip()[:3].strip())
         chap = chap.strip()[3:].strip()
         chap = re.sub(r"\s*\d+\s*", "\n\n\n", chap)
-        content[chap_id] = {"title": f"Chapter {chap_id}", "content": {}}
+        parsed_content[chap_id] = {"title": f"Chapter {chap_id}", "text": {}}
         for i, page in enumerate(chap.split("\n\n\n")):
             if page.strip():
-                content[chap_id]["content"][i] = page
+                parsed_content[chap_id]["text"][i] = page
 
+    final_content = {
+        "title": "One Hundred Years of Solitude",
+        "content": parsed_content,
+    }
     json_path = os.path.join(os.path.dirname(book_path), "solitude.json")
-    write_json(json_path, content)
+    write_json(json_path, final_content)
+    return final_content
 
 
 def write_json(filename, data, indent=4):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=indent)
+
+
+def write_jsonl(filename, data):
+    with open(filename, "w", encoding="utf-8") as f:
+        for entry in data:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
 def chunk_text(text: str, chunk_size: int = 2500) -> list[str]:
