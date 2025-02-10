@@ -5,6 +5,8 @@ import sys
 import os
 import json
 from tqdm import tqdm
+from collections import Counter
+import numpy as np
 
 from helpers import pars_karamazov, pars_solitude, write_json, read_json
 from prompts import (
@@ -55,11 +57,11 @@ def generate_relations(parsed_content: dict):
     book_title = parsed_content["title"]
     content = parsed_content["content"]
 
-    for chapter_num, chapter in list(content.items())[:1]:
+    for chapter_num, chapter in list(content.items()):
         relations[chapter_num] = {}
 
         for i, paragraph in tqdm(
-            list(chapter["text"].items())[:1], desc=f"Relations Chapter {chapter_num}"
+            list(chapter["text"].items()), desc=f"Relations Chapter {chapter_num}"
         ):
             relations[chapter_num][i] = []
             prompt = relation_extraction_prompt.replace(
@@ -112,19 +114,26 @@ def generate_character_mapping(parsed_content: dict, relations: dict) -> dict:
     return relations
 
 
-def extract_characters(relations):
-    return {
-        char.strip()
-        for chapter in relations.values()
-        for chunk in chapter.values()
-        for r in chunk
-        for c in r["character_mapping"]
-        for char in list(c.values())[0].split(",")
-    }
+def extract_common_characters(relations, percentile=90):
+    characters = []
+    for chapter in relations.values():
+        for chunk in chapter.values():
+            for r in chunk:
+                if "character_mapping" in r:
+                    for c in r["character_mapping"]:
+                        character = list(c.values())[0]
+                        if isinstance(character, str):
+                            characters.extend(
+                                char.strip().lower() for char in character.split(",")
+                            )
+
+    counts = Counter(characters)
+    threshold = np.percentile(list(counts.values()), percentile)
+    return {char for char, count in counts.items() if count >= threshold}
 
 
 def generate_character_descriptions(book_title: str, relations: dict) -> dict:
-    characters = extract_characters(relations)
+    characters = extract_common_characters(relations)
     character_descs = {}
     for character in tqdm(characters, desc="Character Descriptions"):
         prompt = character_description_prompt.replace(
