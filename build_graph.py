@@ -1,0 +1,196 @@
+from helpers import read_json, write_json
+import os
+import sys
+from collections import Counter
+import numpy as np
+from typing import Optional
+import logging
+
+GRAPHENV = sys.argv[1]
+
+# Add logger configuration
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+def get_paths(graphenv):
+    """Get environment-specific paths"""
+    base_dirs = {
+        "karamazov": "data/brothers-karamazov",
+        "solitude": "data/one-hundred-years-of-solitude",
+    }
+    return {
+        "base": base_dirs[graphenv],
+        "data": os.path.join(base_dirs[graphenv], "data.json"),
+        "graph": os.path.join(base_dirs[graphenv], "graph.json"),
+    }
+
+
+def create_name_mapping(name_groups: dict) -> dict:
+    """
+    Input: {"John": ["Johnny", "Jon"]}
+    Output: {"John": "John", "Johnny": "John", "Jon": "John"}
+    """
+    mapping = {}
+    for standard, variants in name_groups.items():
+        mapping[standard] = standard  # Standard name maps to itself
+        for variant in variants:
+            mapping[variant] = standard
+    return mapping
+
+
+def _extract_character_pair(
+    relation: dict, name_mapping: dict
+) -> Optional[tuple[str, str]]:
+    """Extract a pair of characters from a relation if valid"""
+    if "character_mapping" not in relation:
+        logger.debug("Relation missing character_mapping field")
+        return None
+
+    if len(relation["character_mapping"]) != 2:
+        logger.debug(
+            f"Invalid number of characters in mapping: {len(relation['character_mapping'])}"
+        )
+        return None
+
+    try:
+        from_char = list(relation["character_mapping"][0].values())[0].lower()
+        to_char = list(relation["character_mapping"][1].values())[0].lower()
+
+        if not isinstance(from_char, str):
+            logger.debug(f"from_char is not a string: {type(from_char)}")
+            return None
+        if not isinstance(to_char, str):
+            logger.debug(f"to_char is not a string: {type(to_char)}")
+            return None
+
+        from_char_mapped = name_mapping.get(from_char, from_char)
+        to_char_mapped = name_mapping.get(to_char, to_char)
+
+        return (from_char_mapped, to_char_mapped)
+    except (IndexError, AttributeError) as e:
+        logger.debug(f"Error extracting character pair: {str(e)}")
+        return None
+
+
+def process_character_pairs(
+    data: dict, name_mapping: dict
+) -> tuple[Counter, list, int, int]:
+    """Process relations to extract character pairs and counts"""
+    character_counts = Counter()
+    character_pairs = []
+    total_relations = 0
+    successful_relations = 0
+
+    for chapter in data["relations"].values():
+        for paragraph in chapter.values():
+            for relation in paragraph:
+                total_relations += 1
+                char_pair = _extract_character_pair(relation, name_mapping)
+                if char_pair:
+                    successful_relations += 1
+                    from_char, to_char = char_pair
+                    character_counts.update([from_char, to_char])
+                    character_pairs.append((from_char, to_char))
+
+    return character_counts, character_pairs, total_relations, successful_relations
+
+
+def create_nodes(character_counts: Counter) -> tuple[dict, list]:
+    """Create node mapping and nodes list"""
+    node_mapping = {name: idx for idx, name in enumerate(character_counts.keys())}
+    nodes = [
+        {
+            "id": idx,
+            "name": name.lower(),
+            "val": character_counts[name],
+            "color": "#97c2fc",
+        }
+        for name, idx in node_mapping.items()
+    ]
+    return node_mapping, nodes
+
+
+def create_links(character_pairs: list, node_mapping: dict) -> list:
+    """Create links list with relationship counts"""
+    relationship_counts = Counter(character_pairs)
+    return [
+        {"source": node_mapping[source], "target": node_mapping[target], "value": count}
+        for (source, target), count in relationship_counts.items()
+    ]
+
+
+def create_character_list(data: dict, node_mapping: dict) -> list:
+    """Create characters list with descriptions"""
+    return [
+        {
+            "id": node_mapping[char.lower()],
+            "name": char.lower(),
+            "desc": desc,
+        }
+        for char, desc in data["characters"].items()
+        if char.lower() in node_mapping
+    ]
+
+
+def create_character_relations(data: dict, node_mapping: dict) -> list:
+    """Create character relations with IDs"""
+    character_relations = []
+    for relation in data["character_relations"]:
+        from_name = relation["from"].lower()
+        to_name = relation["to"].lower()
+
+        if from_name not in node_mapping or to_name not in node_mapping:
+            continue
+
+        character_relations.append(
+            {
+                "from": from_name,
+                "from_id": node_mapping[from_name],
+                "to": to_name,
+                "to_id": node_mapping[to_name],
+                "description": relation["description"],
+            }
+        )
+    return character_relations
+
+
+def build_graph(data: dict) -> dict:
+    """Build a graph from the JSON data"""
+    name_mapping = create_name_mapping(data["name_groups"])
+
+    # Process character pairs and get counts
+    character_counts, character_pairs, total_relations, successful_relations = (
+        process_character_pairs(data, name_mapping)
+    )
+
+    # Log processing statistics
+    success_rate = (
+        (successful_relations / total_relations * 100) if total_relations > 0 else 0
+    )
+    logger.info(f"Processed {total_relations} total relations")
+    logger.info(f"Successfully extracted {successful_relations} character pairs")
+    logger.info(f"Success rate: {success_rate:.2f}%")
+
+    # Create graph components
+    node_mapping, nodes = create_nodes(character_counts)
+    links = create_links(character_pairs, node_mapping)
+    characters = create_character_list(data, node_mapping)
+    character_relations = create_character_relations(data, node_mapping)
+
+    return {
+        "nodes": nodes,
+        "links": links,
+        "characters": characters,
+        "character_relations": character_relations,
+    }
+
+
+if __name__ == "__main__":
+    if GRAPHENV not in ["karamazov", "solitude"]:
+        sys.exit("Invalid environment. Use 'karamazov' or 'solitude'")
+
+    paths = get_paths(GRAPHENV)
+    data = read_json(paths["data"])
+    graph = build_graph(data)
+    write_json(paths["graph"], graph)
