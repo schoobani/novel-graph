@@ -1,5 +1,5 @@
 relation_extraction_prompt = """
-    The following is an excerpt from the novel _book_title_:
+    The following is an excerpt from the novel _book_title_ :
 
     _book_paragraph_
 
@@ -95,7 +95,7 @@ character_description_prompt = """
 
 relation_description_prompt = """
     Context:
-    You are analyzing the relationship between two characters, _character_A_ and _character_B_, in the novel _book_title_. 
+    You are analyzing the relationship between two characters, _character_A_ and _character_B_, in the novel _book_title_ . 
     Understanding their interactions, conflicts, and development within the story is crucial for literary analysis.
 
     High level relation points of the characters:
@@ -121,9 +121,9 @@ relation_description_prompt = """
     description: 
 """
 
-character_standardization_prompt = """
+name_group_prompt = """
     Context:
-    You are provided with a list of character names from the novel _book_title_. Some characters in this list are known by multiple names (aliases, nicknames, or alternate identities).
+    You are provided with a list of character names from the novel _book_title_ . Some characters in this list are known by multiple names (aliases, nicknames, or alternate identities).
 
     Objective:
     Generate a structured JSON output that maps each character's most commonly used name to a list of their other known names.
