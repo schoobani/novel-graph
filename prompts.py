@@ -120,3 +120,44 @@ relation_description_prompt = """
 
     description: 
 """
+
+character_standardization_prompt = """
+    Context:
+    You are provided with a list of character names from the novel _book_title_. Some characters in this list are known by multiple names (aliases, nicknames, or alternate identities).
+
+    Objective:
+    Generate a structured JSON output that maps each character's most commonly used name to a list of their other known names.
+
+    Task Breakdown:
+
+    Identify duplicates: Detect characters that share multiple names and determine the most commonly used name.
+    Structure output: Create a JSON dictionary where:
+    The key is the most commonly used name of the character.
+    The value is a list of their alternate names.
+    Preserve exact spelling: Ensure all names in the output match exactly as they appear in the provided list (no modifications, standardizations, or assumptions).
+    Format output correctly: The final JSON should be properly formatted and syntactically valid.
+
+    Example Input:
+    - John Smith  
+    - J. Smith  
+    - Jonathan Smith  
+    - Mary Johnson  
+    - M. Johnson  
+    - Robert Brown  
+
+    Expected JSON Output:
+    {
+    "John Smith": ["J. Smith", "Jonathan Smith"],
+    "Mary Johnson": ["M. Johnson"],
+    "Robert Brown": []
+    }
+
+    Constraints:
+
+    Ensure that names are grouped correctly based on identity, not similarity.
+    Output should be in valid JSON format.
+    Do not alter the names from the original list.
+
+    Here is the list of names:
+    _character_names_
+"""

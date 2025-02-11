@@ -1,5 +1,7 @@
 import itertools
 import logging
+
+from click import prompt
 from openai import OpenAI
 import sys
 import os
@@ -14,6 +16,7 @@ from prompts import (
     character_mapping_prompt,
     character_description_prompt,
     relation_description_prompt,
+    character_standardization_prompt,
 )
 
 GRAPHENV = sys.argv[1]
@@ -155,9 +158,11 @@ def generate_character_descriptions(book_title: str, relations: dict) -> dict:
 def extract_character_names(relation: dict) -> tuple:
     """Extract character names from a relation's character mapping."""
     char_names = [
-        list(char_map.values())[0] for char_map in relation["character_mapping"]
+        list(char_map.values())[0]
+        for char_map in relation.get("character_mapping", [])
+        if char_map
     ]
-    return tuple(char_names)
+    return tuple(item.lower() for item in char_names if isinstance(item, str) and item)
 
 
 def collect_character_descriptions(
@@ -170,16 +175,14 @@ def collect_character_descriptions(
         for chunk in chapter.values():
             for relation in chunk:
                 relation_pair = extract_character_names(relation)
-
                 if relation_pair in character_permutations:
                     relationship_descriptions[relation_pair].append(
                         relation["description"]
                     )
-
     return {k: v for k, v in relationship_descriptions.items() if v}
 
 
-def process_relation_description(
+def generate_relation_description(
     perm: tuple, descriptions: list, prompt_template: str
 ) -> dict:
     """Process a single relation description using the provided prompt template."""
@@ -221,12 +224,27 @@ def generate_character_relation_descriptions(
     for perm, descs in tqdm(
         relation_examples.items(), desc="Relationship Descriptions"
     ):
-        relation = process_relation_description(
+        relation = generate_relation_description(
             perm, descs, relation_description_prompt
         )
         relation_descriptions.append(relation)
 
     return relation_descriptions
+
+
+def generate_standardize_characters(characters: list, book_title: str) -> dict:
+    prompt = character_standardization_prompt.replace(
+        "_character_names_",
+        "\n-".join(characters),
+    ).replace("_book_title_", book_title)
+    response = generate_respons(prompt)
+    try:
+        standard_chars = json.loads(
+            json.loads(response.choices[0].message.function_call.arguments)["message"]
+        )
+    except (json.JSONDecodeError, KeyError):
+        return {}
+    return standard_chars
 
 
 def get_paths(graphenv):
@@ -246,6 +264,9 @@ def get_paths(graphenv):
             "relations": os.path.join(tmp_dir, "relations.json"),
             "char_relations": os.path.join(tmp_dir, "character_relations.json"),
             "characters": os.path.join(tmp_dir, "characters.json"),
+            "standardized_characters": os.path.join(
+                tmp_dir, "standardized_characters.json"
+            ),
         },
     }
 
@@ -297,6 +318,17 @@ def process_char_relations(paths, relations, characters):
     )
 
 
+def process_standardize_characters(
+    paths: list[str], characters: list, book_title: str
+) -> dict:
+    return get_or_generate(
+        paths["tmp"]["standardized_characters"],
+        generate_standardize_characters,
+        characters,
+        book_title,
+    )
+
+
 def main():
     if GRAPHENV not in ["karamazov", "solitude"]:
         return
@@ -306,11 +338,15 @@ def main():
     relations = process_relations(paths, parsed_content)
     characters = process_characters(paths, parsed_content, relations)
     relation_descriptions = process_char_relations(paths, relations, characters)
+    standardized_characters = process_standardize_characters(
+        paths, characters=list(characters.keys()), book_title=parsed_content["title"]
+    )
 
     graph_data = {
         "relations": relations,
         "characters": characters,
         "character_relations": relation_descriptions,
+        "standardized_characters": standardized_characters,
     }
 
     json_path = os.path.join(paths["base"], "data.json")
