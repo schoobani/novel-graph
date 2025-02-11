@@ -97,13 +97,27 @@ def process_character_pairs(
 
 
 def create_nodes(character_counts: Counter) -> tuple[dict, list]:
-    """Create node mapping and nodes list"""
-    node_mapping = {name: idx for idx, name in enumerate(character_counts.keys())}
+    """Create node mapping and nodes list, excluding characters mentioned only once"""
+    # Filter out characters with count = 1
+    filtered_characters = {
+        name: count for name, count in character_counts.items() if count > 1
+    }
+
+    # Log excluded characters
+    excluded_characters = [
+        name for name, count in character_counts.items() if count == 1
+    ]
+    if excluded_characters:
+        logger.info(
+            f"Excluding {len(excluded_characters)} characters that appear only once!"
+        )
+
+    node_mapping = {name: idx for idx, name in enumerate(filtered_characters.keys())}
     nodes = [
         {
             "id": idx,
             "name": name.lower(),
-            "val": character_counts[name],
+            "val": filtered_characters[name],
             "color": "#97c2fc",
         }
         for name, idx in node_mapping.items()
@@ -111,13 +125,35 @@ def create_nodes(character_counts: Counter) -> tuple[dict, list]:
     return node_mapping, nodes
 
 
-def create_links(character_pairs: list, node_mapping: dict) -> list:
-    """Create links list with relationship counts"""
+def create_links(character_pairs: list, node_mapping: dict) -> tuple[list, set]:
+    """
+    Create links list with relationship counts, excluding single occurrences.
+    Returns tuple of (links, connected_nodes)
+    """
     relationship_counts = Counter(character_pairs)
-    return [
+    
+    # Filter out relationships that only occur once
+    filtered_relationships = {
+        pair: count for pair, count in relationship_counts.items() 
+        if count > 1 and pair[0] in node_mapping and pair[1] in node_mapping
+    }
+    
+    # Count dropped links
+    dropped_links = len(relationship_counts) - len(filtered_relationships)
+    logger.info(f"Dropped {dropped_links} links that only occurred once")
+    
+    # Keep track of nodes that have connections
+    connected_nodes = set()
+    for source, target in filtered_relationships.keys():
+        connected_nodes.add(source)
+        connected_nodes.add(target)
+    
+    links = [
         {"source": node_mapping[source], "target": node_mapping[target], "value": count}
-        for (source, target), count in relationship_counts.items()
+        for (source, target), count in filtered_relationships.items()
     ]
+    
+    return links, connected_nodes
 
 
 def create_character_list(data: dict, node_mapping: dict) -> list:
@@ -174,12 +210,19 @@ def build_graph(data: dict) -> dict:
 
     # Create graph components
     node_mapping, nodes = create_nodes(character_counts)
-    links = create_links(character_pairs, node_mapping)
-    characters = create_character_list(data, node_mapping)
-    character_relations = create_character_relations(data, node_mapping)
+    links, connected_nodes = create_links(character_pairs, node_mapping)
+
+    # Filter nodes to only include connected ones
+    filtered_node_mapping = {
+        name: idx for name, idx in node_mapping.items() if name in connected_nodes
+    }
+    filtered_nodes = [node for node in nodes if node["name"] in connected_nodes]
+
+    characters = create_character_list(data, filtered_node_mapping)
+    character_relations = create_character_relations(data, filtered_node_mapping)
 
     return {
-        "nodes": nodes,
+        "nodes": filtered_nodes,
         "links": links,
         "characters": characters,
         "character_relations": character_relations,
