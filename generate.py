@@ -16,7 +16,7 @@ from prompts import (
     character_mapping_prompt,
     character_description_prompt,
     relation_description_prompt,
-    character_standardization_prompt,
+    name_group_prompt,
 )
 
 GRAPHENV = sys.argv[1]
@@ -232,19 +232,19 @@ def generate_character_relation_descriptions(
     return relation_descriptions
 
 
-def generate_standardize_characters(characters: list, book_title: str) -> dict:
-    prompt = character_standardization_prompt.replace(
+def generate_name_groups(characters: list, book_title: str) -> dict:
+    prompt = name_group_prompt.replace(
         "_character_names_",
         "\n-".join(characters),
     ).replace("_book_title_", book_title)
     response = generate_respons(prompt)
     try:
-        standard_chars = json.loads(
+        name_groups = json.loads(
             json.loads(response.choices[0].message.function_call.arguments)["message"]
         )
     except (json.JSONDecodeError, KeyError):
         return {}
-    return standard_chars
+    return name_groups
 
 
 def get_paths(graphenv):
@@ -264,9 +264,7 @@ def get_paths(graphenv):
             "relations": os.path.join(tmp_dir, "relations.json"),
             "char_relations": os.path.join(tmp_dir, "character_relations.json"),
             "characters": os.path.join(tmp_dir, "characters.json"),
-            "standardized_characters": os.path.join(
-                tmp_dir, "standardized_characters.json"
-            ),
+            "name_groups": os.path.join(tmp_dir, "name_groups.json"),
         },
     }
 
@@ -318,12 +316,10 @@ def process_char_relations(paths, relations, characters):
     )
 
 
-def process_standardize_characters(
-    paths: list[str], characters: list, book_title: str
-) -> dict:
+def process_name_groups(paths: list[str], characters: list, book_title: str) -> dict:
     return get_or_generate(
-        paths["tmp"]["standardized_characters"],
-        generate_standardize_characters,
+        paths["tmp"]["name_groups"],
+        generate_name_groups,
         characters,
         book_title,
     )
@@ -338,7 +334,7 @@ def main():
     relations = process_relations(paths, parsed_content)
     characters = process_characters(paths, parsed_content, relations)
     relation_descriptions = process_char_relations(paths, relations, characters)
-    standardized_characters = process_standardize_characters(
+    name_groups = process_name_groups(
         paths, characters=list(characters.keys()), book_title=parsed_content["title"]
     )
 
@@ -346,7 +342,7 @@ def main():
         "relations": relations,
         "characters": characters,
         "character_relations": relation_descriptions,
-        "standardized_characters": standardized_characters,
+        "name_groups": name_groups,
     }
 
     json_path = os.path.join(paths["base"], "data.json")
