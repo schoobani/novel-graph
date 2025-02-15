@@ -46,21 +46,23 @@ relation_extraction_prompt = """
 
 
 character_mapping_prompt = """
-    The following is an excerpt from the novel _book_title_:
+    The following is an excerpt from the novel _book_title_ :
 
     _book_paragraph_
 
     Instructions:
     Character Identification: In the provided text, two characters— _character_A_ and _character_B_ —are mentioned. Identify them based on how their names commonly appear in the novel.
 
-    1. Name Correction: For each character, retrieve their most commonly used full name throughout the novel. Pay special attention to whether they are referred to by middle names, abbreviations, or incomplete forms of their names, and ensure consistency with their full identity.
-    2. Pronoun Replacement: If any of these characters are referred to by pronouns (e.g., he, she, they), replace the pronoun with the correct full name of the character.
-    3. Typographical Corrections: Correct any spelling or typographical errors in the characters' names that may appear in the text.
-    4. Familial Relationships: If any relationships are mentioned (e.g., "his child," "her father," "his parents"), identify the family member being referenced and replace the relationship term with the full name of the relevant character as they are identified in the book. Ensure that the relationship context is preserved.
-    5. Output Format: Present the relationships between the mentioned characters and their correct full names in the following JSON structure:
+    1. **Name Correction**: For each character, retrieve their most commonly used full name throughout the novel. Pay special attention to whether they are referred to by middle names, abbreviations, or incomplete forms of their names, and ensure consistency with their full identity.  
+    2. **Pronoun Replacement**: If any of these characters are referred to by pronouns such as he, she, or they, replace the pronoun with the correct full name of the character.  
+    3. **Typographical Corrections**: Correct any spelling or typographical errors in the characters' names that may appear in the text.  
+    4. **Familial Relationships**: If any relationships are mentioned such as "his child," "her father," or "his parents," identify the family member being referenced and replace the relationship term with the full name of the relevant character as they are identified in the book. Ensure that the relationship context is preserved.  
+    5. **Do not use parentheses in any part of the output, including names.**  
+    6. Do not use multiple names, map only to a single name per character.
+    7. **Output Format**: Present the relationships between the mentioned characters and their correct full names in the following JSON structure. 
     \n
     "relations": [
-        {
+        { 
             "_character_A_": "correct full names"
         },
         {
@@ -123,40 +125,34 @@ relation_description_prompt = """
 
 name_group_prompt = """
     Context:
-    You are provided with a list of character names from the novel _book_title_ . Some characters in this list are known by multiple names (aliases, nicknames, or alternate identities).
+    You are given a list of character names from the novel _book_title_ . Some characters are known by multiple names, including aliases, nicknames, or alternate identities.
 
     Objective:
-    Generate a structured JSON output that maps each character's most commonly used name to a list of their other known names.
+    Generate a structured JSON output that maps each character’s most commonly used name to a list of their other known names.
 
     Task Breakdown:
 
-    Identify duplicates: Detect characters that share multiple names and determine the most commonly used name.
-    Structure output: Create a JSON dictionary where:
-    The key is the most commonly used name of the character.
-    The value is a list of their alternate names.
-    Preserve exact spelling: Ensure all names in the output match exactly as they appear in the provided list (no modifications, standardizations, or assumptions).
-    Format output correctly: The final JSON should be properly formatted and syntactically valid.
+    Identify duplicates: Detect characters with multiple names and select the most commonly used name from the collection.
 
-    Example Input:
-    - John Smith  
-    - J. Smith  
-    - Jonathan Smith  
-    - Mary Johnson  
-    - M. Johnson  
-    - Robert Brown  
+    Structure the output: Create a JSON dictionary where:
+    The key is the character’s most frequently used (among provided options)
+    The value is a list of their other known names (aliases, nicknames, alternate spellings) among provided options.
+    Preserve exact spelling: Maintain the original spelling of all names as provided, without modifications, standardizations, or assumptions.
+    Ensure valid JSON formatting: The final JSON must be syntactically correct and properly structured.
+    Guidelines & Constraints:
+
+    Follow a step-by-step approach to ensure all names from the list are processed.
+    No duplicate mappings: Each character should appear as a key only once.
+    Strict adherence to the provided list: Do not infer or generate names that are not explicitly given.
+    Context-aware grouping: Use knowledge of _book_title_ to accurately associate names belonging to the same character.
+    Identity-based grouping, not similarity-based: Do not group names based on resemblance but on actual character identity.
 
     Expected JSON Output:
+
     {
-    "John Smith": ["J. Smith", "Jonathan Smith"],
-    "Mary Johnson": ["M. Johnson"],
-    "Robert Brown": []
+    "Full Name 1": ["Alias Name 1", "Alias Name 2", ...],
+    "Full Name 2": ["Alias Name 3", "Alias Name 4", ...]
     }
-
-    Constraints:
-
-    Ensure that names are grouped correctly based on identity, not similarity.
-    Output should be in valid JSON format.
-    Do not alter the names from the original list.
 
     Here is the list of names:
     _character_names_

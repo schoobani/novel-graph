@@ -1,3 +1,4 @@
+from heapq import merge
 import itertools
 import logging
 
@@ -232,18 +233,88 @@ def generate_character_relation_descriptions(
     return relation_descriptions
 
 
-def generate_name_groups(characters: list, book_title: str) -> dict:
+def generate_name_mapping(characters: list, book_title: str) -> dict:
+    """Generate a single level of name mapping."""
     prompt = name_group_prompt.replace(
         "_character_names_",
-        "\n-".join(characters),
+        "\n".join(sorted(characters)),
     ).replace("_book_title_", book_title)
+
     response = generate_respons(prompt)
     try:
-        name_groups = json.loads(
+        name_mapping = json.loads(
             json.loads(response.choices[0].message.function_call.arguments)["message"]
         )
-    except (json.JSONDecodeError, KeyError):
+        logger.info(f"Mapping complete - mapped {len(name_mapping)} names")
+        return name_mapping
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.warning(f"Failed to generate name mapping: {str(e)}")
         return {}
+
+
+def merge_mappings(prev_mapping: dict, next_mapping: dict) -> dict:
+    """Merge mappings to create comprehensive character name groups."""
+    prev_mapping = {
+        k.lower(): [i.lower() for i in v if isinstance(i, str)]
+        for k, v in prev_mapping.items()
+    }
+    next_mapping = {
+        k.lower(): [i.lower() for i in v if isinstance(i, str)]
+        for k, v in next_mapping.items()
+    }
+    merged = {}
+    for k, v in next_mapping.items():
+        merged[k] = []
+        for item in prev_mapping.get(k, []):
+            merged[k].append(item.lower())
+        for element in v:
+            for item in prev_mapping.get(element, []):
+                merged[k].append(item.lower())
+
+    for k, v in prev_mapping.items():
+        if k not in merged.keys():
+            merged[k] = v
+    return merged
+
+
+def generate_name_groups(characters: list, book_title: str) -> dict:
+    logger.info(f"Starting name group generation with {len(characters)} characters")
+
+    # Step 1: First level mapping - group similar names
+    logger.debug("Step 1: Generating first level name mapping")
+    first_mapping = generate_name_mapping(characters, book_title)
+    write_json(
+        os.path.join(
+            os.path.dirname(os.path.dirname(book_title)), "tmp/first_mapping.json"
+        ),
+        first_mapping,
+    )
+
+    # Step 2: Second level mapping - consolidate groups
+    logger.debug("Step 2: Generating second level name mapping")
+    second_mapping = generate_name_mapping(
+        [k for k in first_mapping.keys()], book_title
+    )
+    write_json(
+        os.path.join(
+            os.path.dirname(os.path.dirname(book_title)), "tmp/second_mapping.json"
+        ),
+        second_mapping,
+    )
+    name_groups = merge_mappings(first_mapping, second_mapping)
+
+    # Calculate mapping coverage
+    all_mapped_names = {name for group in name_groups.values() for name in group}
+    all_mapped_names.update(name_groups.keys())
+    mapping_percentage = (len(all_mapped_names) / len(characters)) * 100
+    diff = set(characters) - all_mapped_names
+
+    for char in diff:
+        name_groups[char] = []
+
+    logger.info(f"Final name groups generated - {len(name_groups)} groups created")
+    logger.info(f"Mapping coverage: {mapping_percentage:.2f}% of original characters")
+
     return name_groups
 
 
@@ -335,7 +406,9 @@ def main():
     characters = process_characters(paths, parsed_content, relations)
     relation_descriptions = process_char_relations(paths, relations, characters)
     name_groups = process_name_groups(
-        paths, characters=list(characters.keys()), book_title=parsed_content["title"]
+        paths,
+        characters={char.lower() for char in list(characters.keys())},
+        book_title=parsed_content["title"],
     )
 
     graph_data = {

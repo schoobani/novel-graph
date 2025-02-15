@@ -33,9 +33,9 @@ def create_name_mapping(name_groups: dict) -> dict:
     """
     mapping = {}
     for standard, variants in name_groups.items():
-        mapping[standard] = standard  # Standard name maps to itself
+        mapping[standard.lower()] = standard.lower()  # Standard name maps to itself
         for variant in variants:
-            mapping[variant] = standard
+            mapping[variant.lower()] = standard.lower()
     return mapping
 
 
@@ -47,30 +47,24 @@ def _extract_character_pair(
         logger.debug("Relation missing character_mapping field")
         return None
 
-    if len(relation["character_mapping"]) != 2:
-        logger.debug(
-            f"Invalid number of characters in mapping: {len(relation['character_mapping'])}"
-        )
+    char_mapping = relation["character_mapping"]
+    if len(char_mapping) != 2:
+        logger.debug(f"Invalid number of characters in mapping: {len(char_mapping)}")
         return None
 
-    try:
-        from_char = list(relation["character_mapping"][0].values())[0].lower()
-        to_char = list(relation["character_mapping"][1].values())[0].lower()
+    from_char = next(iter(char_mapping[0].values()), None)
+    to_char = next(iter(char_mapping[1].values()), None)
 
-        if not isinstance(from_char, str):
-            logger.debug(f"from_char is not a string: {type(from_char)}")
-            return None
-        if not isinstance(to_char, str):
-            logger.debug(f"to_char is not a string: {type(to_char)}")
-            return None
+    if not isinstance(from_char, str) or not isinstance(to_char, str):
+        logger.debug("Character values must be strings")
+        return None
 
-        from_char_mapped = name_mapping.get(from_char, from_char)
-        to_char_mapped = name_mapping.get(to_char, to_char)
+    from_char_mapped = name_mapping.get(from_char.lower())
+    to_char_mapped = name_mapping.get(to_char.lower())
 
+    if from_char_mapped and to_char_mapped:
         return (from_char_mapped, to_char_mapped)
-    except (IndexError, AttributeError) as e:
-        logger.debug(f"Error extracting character pair: {str(e)}")
-        return None
+    return None
 
 
 def process_character_pairs(
@@ -131,28 +125,29 @@ def create_links(character_pairs: list, node_mapping: dict) -> tuple[list, set]:
     Returns tuple of (links, connected_nodes)
     """
     relationship_counts = Counter(character_pairs)
-    
+
     # Filter out relationships that only occur once
     filtered_relationships = {
-        pair: count for pair, count in relationship_counts.items() 
+        pair: count
+        for pair, count in relationship_counts.items()
         if count > 1 and pair[0] in node_mapping and pair[1] in node_mapping
     }
-    
+
     # Count dropped links
     dropped_links = len(relationship_counts) - len(filtered_relationships)
     logger.info(f"Dropped {dropped_links} links that only occurred once")
-    
+
     # Keep track of nodes that have connections
     connected_nodes = set()
     for source, target in filtered_relationships.keys():
         connected_nodes.add(source)
         connected_nodes.add(target)
-    
+
     links = [
         {"source": node_mapping[source], "target": node_mapping[target], "value": count}
         for (source, target), count in filtered_relationships.items()
     ]
-    
+
     return links, connected_nodes
 
 
