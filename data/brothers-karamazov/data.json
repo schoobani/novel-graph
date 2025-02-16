@@ -48572,118 +48572,182 @@
             "description": "In the dimly lit corners of Petersburg, the complex entanglement between Rodion Romanovich Raskolnikov and Fyodor Pavlovich Karamazov unfurls, embodying a rivalry steeped in philosophical dissonance. Raskolnikov, with his tortured intellect, grapples with the moral implications of his actions, while Karamazov, the epitome of debauchery, revels in his libertine pleasures, wielding a magnetic charm that both entrances and repulses. Their encounters resonate with electric tension; Raskolnikov, seeking redemption, finds himself drawn to Karamazov's chaotic worldview, symbolizing the eternal conflict between reason and faith, order and chaos. In moments where their paths converge, the air thickens with existential dread, encapsulating the struggle for meaning in a world riddled with despair. Together, they traverse the murky waters of morality and depravity, leaving echoes of their clash reverberating far beyond their ephemeral interactions."
         }
     ],
-    "standardized_characters": {
-        "snegiryov": [
-            "captain snegiryov",
-            "ilyusha snegiryov",
-            "ilusha snegiryov",
-            "nin snegiryov",
-            "mikhail snegiryov"
-        ],
-        "father anfim": [
-            "father zosima",
-            "father paissy",
-            "father iosif",
-            "father ferapont"
-        ],
-        "zossima": [
-            "elder zosima",
-            "father zosima",
-            "father zossima"
-        ],
-        "nikolai parfenovitch": [
-            "nikolai parfenovitch karamazov",
-            "nikolai parfenovich",
-            "kolya krasotkin",
-            "kolya krassotkin",
-            "nikolai ivanovich parfenovitch",
-            "nikolay parfenovich",
-            "nikolai ivanovich",
-            "nina snegiryov"
-        ],
-        "alyosha fyodorovitch karamazov": [
-            "alyosha fyodorovich karamazov",
+    "name_groups": {
+        "aleksei fyodorovich karamazov": [
+            "aleksey fyodorovich karamazov",
+            "alexei fyodorovich karamazov",
             "alexei fyodorovitch karamazov",
+            "alexey fyodorovich karamazov",
+            "alexey fyodorovitch karamazov",
+            "alyosha fyodorovich karamazov",
+            "alyosha fyodorovitch karamazov",
             "alyosha karamazov"
         ],
-        "ilyusha snegiryov": [],
-        "lise alyosha karamazov": [
-            "lise khokhlakov",
-            "lise karamazov"
+        "dmitri fyodorovich karamazov": [
+            "dmitri fyodorovich rakitin",
+            "dmitri fyodorovitch karamazov",
+            "dmitri karamazov",
+            "dmitry fyodorovich karamazov"
         ],
-        "foma fomich": [],
+        "ivan fyodorovich karamazov": [
+            "ivan fyodorovitch karamazov"
+        ],
+        "fyodor pavlovich karamazov": [
+            "fyodor pavlovitch karamazov"
+        ],
         "grigory karamazov": [
+            "grigory kutuzov",
+            "grigory vasilievich",
             "grigory vasilievich karamazov",
+            "grigory vasilievich kutuzov",
             "grigory vassilyevitch",
-            "grigory kutuzov"
+            "grigory vassilyevitch karamazov"
         ],
-        "alexei fyodorovitch karamazov": [
-            "alexey fyodorovich karamazov",
-            "alefsy fyodorovich karamazov"
-        ],
-        "mikhail snegiryov": [],
-        "miusov": [
-            "pyotr alexandrovitch miusov",
-            "pyotr ilyitch smerdyakov"
-        ],
-        "marya kondratyevna": [],
-        "katerina ivanovna smerdyakova": [
-            "katerina ivanovna verkhovtseva",
-            "katerina ivanovna"
-        ],
-        "agafya ivanovna karamazov": [],
         "maria karamazov": [],
-        "grushenka karamazov": [
-            "grushenka ivanovna",
-            "grushenka (grusha)",
-            "grushenka alexeyevna",
-            "grushenka (agrafena alexandrovna svetlova)",
-            "agrafena alexandrovna karamazov",
-            "grushenka (also known as agrafena alexandrovna svetlova)",
-            "grushenka alexandrovna",
-            "grushenka (grushka)",
-            "grushenka ",
-            "grushenka (agrafena alexandrovna svetlova)"
+        "smerdyakov": [
+            "captain snegiryov"
         ],
-        "katerina ivanovna karamazov": [],
+        "katerina ivanovna": [
+            "katerina ivanovna karamazov",
+            "katerina ivanovna smerdyakov",
+            "katerina ivanovna smerdyakova",
+            "katerina ivanovna snegiryov",
+            "katerina ivanovna verkhovtsev",
+            "katerina ivanovna verkhovtseva",
+            "ekaterina ivanovna kabanova",
+            "ekaterina ivanovna karamazov",
+            "ekaterina ivanovna skotoprigonyevskaya",
+            "ekaterina ivanovna snegiryov"
+        ],
+        "ilusha snegiryov": [
+            "ilyusha",
+            "ilyusha ivanovich karamazov",
+            "ilyusha karamazov",
+            "ilyusha snegiryov"
+        ],
+        "mjritrop": [
+            "madame hohlakova",
+            "madame khokhlakov"
+        ],
         "adelaida ivanovna karamazov": [],
-        "fyodor pavlovich karamazov": [],
+        "afanasy ivanovich": [],
+        "agafya ivanovna": [
+            "agafya ivanovna karamazov"
+        ],
+        "agrafena alexandrovna (grushenka)": [
+            "agrafena alexandrovna karamazov",
+            "agrafena alexandrovna svetlova",
+            "grushenka",
+            "grushenka (agrafena alexandrovna svetlova)",
+            "grushenka (also known as agrafena alexandrovna svetlova)",
+            "grushenka (grusha)",
+            "grushenka (grushka)",
+            "grushenka alexandrovna",
+            "grushenka alexeyevna",
+            "grushenka ivanovna",
+            "grushenka karamazov"
+        ],
+        "captain smerdyakov": [
+            "captain snegiryov"
+        ],
+        "doctor ivanovich herzenstube": [],
+        "ekaterina ivanovna": [
+            "ekaterina ivanovna kabanova",
+            "ekaterina ivanovna karamazov",
+            "ekaterina ivanovna skotoprigonyevskaya",
+            "ekaterina ivanovna snegiryov"
+        ],
+        "elder zosima": [
+            "elder zossima",
+            "father zosima",
+            "father zossima",
+            "zosima",
+            "zossima",
+            "zossima fyodorovich karamazov"
+        ],
+        "father anfim": [],
+        "father ferapont": [],
+        "father iosif": [],
+        "father paissy": [],
+        "fenya": [],
         "fetyukovich": [],
-        "mavriky mavrikyevitch": [],
-        "pan vrublevsky": [],
-        "kolya krasotkin": [],
-        "ivan fyodorovitch karamazov": [],
-        "maxim maximovich": [
-            "maxim maximov"
+        "foma fomich": [],
+        "fyodor dostoevsky": [],
+        "god": [],
+        "ippolit kirillovich": [
+            "ippolit kirillovitch"
         ],
-        "ilyusha ivanovich karamazov": [],
-        "aleksiy fyodorovich karamazov": [],
-        "the grand inquisitor": [],
-        "varvara ivanovna karamazov": [],
-        "grigory vasilievich": [],
-        "nikolai ivanovich karamazov": [],
-        "kolya krassotkin": [],
-        "nina karamazov": [],
-        "nikolai parfenovich karamazov": [],
-        "maximov": [],
-        "pyotr alexandrovitch miusov": [],
-        "marfa ignatyevna": [],
-        "katerina ivanovna verkhovtsev": [],
-        "kolya ivanovich krasotkin": [],
-        "katerina ivanovna": [],
-        "zossima fyodorovich karamazov": [],
-        "agrafena alexandrovna karamazov": [],
-        "grushenka (grusha)": [],
-        "grushenka alexandrovna": [],
         "jesus christ": [],
-        "evil": [
-            "grigory vasilievich kutuzov"
+        "joseph karamazov": [],
+        "kolya ivanovich krasotkin": [
+            "kolya krasotkin",
+            "kolya krassotkin"
         ],
-        "rodion romanovich raskolnikov": [],
-        "who is to be moved simply": [],
-        "lise karamazov": [],
+        "lise alyosha karamazov": [
+            "lise karamazov",
+            "lise khokhlakov"
+        ],
+        "lizaveta smerdyashchaya": [],
+        "madame hohlakov": [
+            "madame hohlakova",
+            "madame khokhlakov"
+        ],
+        "marfa ignatyevna": [],
+        "maria grigorievna hohlakov": [],
+        "maria ivanovna": [],
+        "markel karamazov": [],
+        "marya kondratyevna": [],
+        "mavriky mavrikyevitch": [],
+        "maxim maximov": [
+            "maxim maximovich",
+            "maxim maximovich maximov"
+        ],
+        "mikhail ivanovich": [
+            "mikhail ivanovich miusov",
+            "mikhail ivanovich rakitin",
+            "mikhail snegiryov"
+        ],
+        "mitya karamazov": [],
+        "miusov": [],
+        "mrs. karamazov": [],
+        "n/a": [],
+        "nikolai ivanovich": [
+            "nikolai ivanovich karamazov",
+            "nikolai ivanovich krasotkin",
+            "nikolai ivanovich krassotkin"
+        ],
+        "nikolai parfenovich": [
+            "nikolai parfenovich karamazov",
+            "nikolai parfenovitch",
+            "nikolay parfenovich",
+            "nikolay parfenovitch"
+        ],
+        "nina karamazov": [
+            "nina snegiryov"
+        ],
+        "pan vrublevsky": [],
+        "pavel fyodorovich kalganov": [],
+        "pavel fyodorovich rakitin": [],
         "pavel fyodorovich smerdyakov": [],
+        "pavel fyodorovich vrublevsky": [],
+        "pavel smerdyakov": [],
+        "prosecutor ippolit kirillovich": [],
+        "pyotr alexandrovich miusov": [
+            "pyotr alexandrovitch miusov"
+        ],
         "pyotr ilyitch perhotin": [],
-        "dvadzatye voyny ustroystva bozkoi": []
+        "pyotr ilyitch smerdyakov": [],
+        "rakitin": [],
+        "rodion romanovich raskolnikov": [],
+        "samsonov": [],
+        "smurov": [],
+        "snegiryov": [],
+        "the grand inquisitor": [],
+        "trifon borissovitch": [],
+        "varvara ivanovna karamazov": [],
+        "zosima": [
+            "zossima"
+        ],
+        "maximov": []
     }
 }
