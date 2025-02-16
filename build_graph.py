@@ -112,7 +112,6 @@ def create_nodes(character_counts: Counter) -> tuple[dict, list]:
             "id": idx,
             "name": name.lower(),
             "val": filtered_characters[name],
-            "color": "#97c2fc",
         }
         for name, idx in node_mapping.items()
     ]
