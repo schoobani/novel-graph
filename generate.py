@@ -328,7 +328,7 @@ def get_paths(graphenv):
     file_paths = {
         "karamazov": "data/brothers-karamazov/karamazov.txt",
         "solitude": "data/one-hundred-years-of-solitude/solitude.pdf",
-        "war_and_peace": "data/war_and_peace/war_and_peace.txt",
+        "war_and_peace": "data/war-and-peace/war_and_peace.txt",
     }
     base_dir = os.path.dirname(file_paths[graphenv])
     tmp_dir = os.path.join(base_dir, "tmp")
