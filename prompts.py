@@ -73,7 +73,7 @@ character_mapping_prompt = """
 
 character_description_prompt = """
     1. Introduction/Context
-    You are tasked with generating a descriptive passage about a well-known literary character, ensuring that it aligns with the novel’s tone, setting, and themes.
+    You are tasked with generating a descriptive passage about a well-known literary character, ensuring that it aligns with the novel’s content.
 
     2. Objective
     Create a vivid, engaging, and well-structured paragraph that captures the essence of the character’s personality, physical appearance, and defining traits.
@@ -81,8 +81,7 @@ character_description_prompt = """
     3. Task Breakdown:
     Select the well-known character "_character_name_" from the famous novel: _book_title_
     Provide a rich, immersive description that highlights their physical features, demeanor, and personality.
-    Ensure the portrayal is consistent with the novel’s tone, historical setting, and narrative style.
-    Use evocative language to bring the character to life while maintaining conciseness and clarity.
+    Use evocative language to bring the character to life while maintaining conciseness and clarity and simplicity.
 
     4. Additional Instructions:
     Avoid generic descriptions; instead, focus on distinctive qualities that define the character.
@@ -97,7 +96,7 @@ character_description_prompt = """
 
 relation_description_prompt = """
     Context:
-    You are analyzing the relationship between two characters, _character_A_ and _character_B_, in the novel _book_title_ . 
+    You are analyzing the relationship between two characters, _character_A_ and _character_B_ , in the novel _book_title_ . 
     Understanding their interactions, conflicts, and development within the story is crucial for literary analysis.
 
     High level relation points of the characters:
@@ -109,15 +108,16 @@ relation_description_prompt = """
     Task Breakdown:
 
     - Summarize the nature of their relationship (e.g., friendship, rivalry, romance, mentorship).
+    - provide a short summary of events between two characters.
     - Highlight key moments or developments that shape their interactions.
     - Capture any emotional, thematic, or symbolic elements tied to their relationship.
-    - Maintain the tone and style of X to reflect the novel’s atmosphere.
+    - Maintain a simple tone and style.
 
     Additional Instructions:
 
     - Keep the response concise, limited to a single paragraph.
     - Focus only on key details without excessive elaboration.
-    - If applicable, use language and style that match the novel’s tone.
+    - If applicable, use language and style that is simple and and understandable for general reader.
     - Avoid extra information or unrelated content such as, here is youre description, etc.
 
     description: 

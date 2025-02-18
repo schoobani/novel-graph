@@ -11,7 +11,13 @@ from tqdm import tqdm
 from collections import Counter
 import numpy as np
 
-from helpers import pars_karamazov, pars_solitude, write_json, read_json
+from helpers import (
+    parse_karamazov,
+    parse_solitude,
+    parse_war_peace,
+    write_json,
+    read_json,
+)
 from prompts import (
     relation_extraction_prompt,
     character_mapping_prompt,
@@ -322,6 +328,7 @@ def get_paths(graphenv):
     file_paths = {
         "karamazov": "data/brothers-karamazov/karamazov.txt",
         "solitude": "data/one-hundred-years-of-solitude/solitude.pdf",
+        "war_and_peace": "data/war_and_peace/war_and_peace.txt",
     }
     base_dir = os.path.dirname(file_paths[graphenv])
     tmp_dir = os.path.join(base_dir, "tmp")
@@ -352,7 +359,11 @@ def get_or_generate(path, generate_fn, *args):
 
 
 def process_parsed_content(paths, graphenv):
-    parse_functions = {"karamazov": pars_karamazov, "solitude": pars_solitude}
+    parse_functions = {
+        "karamazov": parse_karamazov,
+        "solitude": parse_solitude,
+        "war_and_peace": parse_war_peace,
+    }
     return get_or_generate(
         paths["tmp"]["parsed_content"], parse_functions[graphenv], paths["input"]
     )
@@ -397,7 +408,7 @@ def process_name_groups(paths: list[str], characters: list, book_title: str) -> 
 
 
 def main():
-    if GRAPHENV not in ["karamazov", "solitude"]:
+    if GRAPHENV not in ["karamazov", "solitude", "war_and_peace"]:
         return
 
     paths = get_paths(GRAPHENV)

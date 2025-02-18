@@ -5,7 +5,7 @@ import re
 import os
 
 
-def pars_karamazov(book_path: str) -> dict[int, dict[str, list[str]]]:
+def parse_karamazov(book_path: str) -> dict[int, dict[str, list[str]]]:
     """
     Parse the book "The Brothers Karamazov" by Fyodor Dostoevsky
     and return a dictionary with chunked content.
@@ -28,12 +28,10 @@ def pars_karamazov(book_path: str) -> dict[int, dict[str, list[str]]]:
         "title": "The Brothers Karamazov",
         "content": parsed_content,
     }
-    json_path = os.path.join(os.path.dirname(book_path), "karamazov.json")
-    write_json(json_path, final_content)
     return final_content
 
 
-def pars_solitude(book_path) -> dict:
+def parse_solitude(book_path) -> dict:
     """
     Parse the book "One Hundred Years of Solitude" by Gabriel García Márquez
     and return a dictionary content of the book.
@@ -74,8 +72,28 @@ With Thanks and regards your friend Antony. mail me to  antonyboban@gmail.com"""
         "title": "One Hundred Years of Solitude",
         "content": parsed_content,
     }
-    json_path = os.path.join(os.path.dirname(book_path), "solitude.json")
-    write_json(json_path, final_content)
+    return final_content
+
+
+def parse_war_peace(book_path: str) -> dict[int, dict[str, list[str]]]:
+    """Parse the book "War and Peace" by Leo Tolstoy and return a dictionary with chunked content."""
+    with open(book_path, "r", encoding="utf-8") as f:
+        corpus = f.read()
+
+    corpus = normalize_characters(corpus)
+    content = corpus.split("CHAPTER")
+
+    parsed_content = {}
+    for i, chapter in enumerate(content[1:], start=1):
+        lines = chapter.split("\n")
+        title = f"Chapter {i}"
+        body = "\n".join(lines).strip()
+        parsed_content[i] = {"title": title, "text": chunk_text(body)}
+
+    final_content = {
+        "title": "War and Peace",
+        "content": parsed_content,
+    }
     return final_content
 
 
