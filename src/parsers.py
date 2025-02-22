@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass
 
 from pypdf import PdfReader
 from tqdm import tqdm
@@ -6,38 +7,62 @@ from tqdm import tqdm
 from helpers import chunk_text, normalize_characters
 
 
-def parse_karamazov(book_path: str) -> dict[int, dict[str, list[str]]]:
+@dataclass
+class TextSection:
+    text: str
+
+
+@dataclass
+class Chapter:
+    title: str
+    text: dict[str, TextSection]
+
+
+@dataclass
+class BookContent:
+    chapters: dict[str, Chapter]
+
+
+@dataclass
+class Book:
+    title: str
+    content: BookContent
+
+
+def parse_karamazov(path: str) -> Book:
     """
     Parse the book "The Brothers Karamazov" by Fyodor Dostoevsky
-    and return a dictionary with chunked content.
+    and return a properly typed Book object.
     """
-    with open(book_path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
         corpus = f.read()
 
     corpus = normalize_characters(corpus)
     corpus = corpus.split("THE END")[0]
     content = corpus.split("Chapter")
 
-    parsed_content = {}
+    chapters: dict[str, Chapter] = {}
     for i, chapter in enumerate(content[1:], start=1):
         lines = chapter.split("\n")
         title = "\n".join(lines[:2]).strip()
         body = "\n".join(lines[2:]).strip()
-        parsed_content[i] = {"title": title, "text": chunk_text(body)}
 
-    final_content = {
-        "title": "The Brothers Karamazov",
-        "content": parsed_content,
-    }
-    return final_content
+        # Convert chunked text into TextSection objects
+        text_sections: dict[str, TextSection] = {}
+        for idx, text in enumerate(chunk_text(body)):
+            text_sections[str(idx)] = TextSection(text=text)
+
+        chapters[str(i)] = Chapter(title=title, text=text_sections)
+
+    return Book(title="The Brothers Karamazov", content=BookContent(chapters=chapters))
 
 
-def parse_solitude(book_path) -> dict:
+def parse_solitude(path: str) -> Book:
     """
     Parse the book "One Hundred Years of Solitude" by Gabriel García Márquez
-    and return a dictionary content of the book.
+    and return a properly typed Book object.
     """
-    reader = PdfReader(book_path)
+    reader = PdfReader(path)
     corpus = ""
     for page in tqdm(reader.pages):
         page_text = page.extract_text().encode("utf-8").decode("utf-8")
@@ -59,40 +84,53 @@ With Thanks and regards your friend Antony. mail me to  antonyboban@gmail.com"""
 
     corpus = normalize_characters(corpus)
 
-    parsed_content = {}
+    chapters: dict[str, Chapter] = {}
     for chap in corpus.split("Chapter")[1:]:
         chap_id = int(chap.strip()[:3].strip())
         chap = chap.strip()[3:].strip()
         chap = re.sub(r"\s*\d+\s*", "\n\n\n", chap)
-        parsed_content[chap_id] = {"title": f"Chapter {chap_id}", "text": {}}
-        for i, page in enumerate(chap.split("\n\n\n")):
-            if page.strip():
-                parsed_content[chap_id]["text"][i] = page
 
-    final_content = {
-        "title": "One Hundred Years of Solitude",
-        "content": parsed_content,
-    }
-    return final_content
+        text_sections: dict[str, TextSection] = {}
+        for i, chunk in enumerate(chap.split("\n\n\n")):
+            if chunk.strip():
+                text_sections[str(i)] = TextSection(text=chunk.strip())
+
+        chapters[str(chap_id)] = Chapter(title=f"Chapter {chap_id}", text=text_sections)
+
+    return Book(
+        title="One Hundred Years of Solitude", content=BookContent(chapters=chapters)
+    )
 
 
-def parse_war_peace(book_path: str) -> dict[int, dict[str, list[str]]]:
-    """Parse the book "War and Peace" by Leo Tolstoy and return a dictionary with chunked content."""
-    with open(book_path, "r", encoding="utf-8") as f:
+def parse_war_peace(path: str) -> Book:
+    """
+    Parse the book "War and Peace" by Leo Tolstoy
+    and return a properly typed Book object.
+    """
+    with open(path, "r", encoding="utf-8") as f:
         corpus = f.read()
 
     corpus = normalize_characters(corpus)
     content = corpus.split("CHAPTER")
 
-    parsed_content = {}
+    chapters: dict[str, Chapter] = {}
     for i, chapter in enumerate(content[1:], start=1):
         lines = chapter.split("\n")
-        title = f"Chapter {i}"
         body = "\n".join(lines).strip()
-        parsed_content[i] = {"title": title, "text": chunk_text(body)}
 
-    final_content = {
-        "title": "War and Peace",
-        "content": parsed_content,
-    }
-    return final_content
+        text_sections: dict[str, TextSection] = {}
+        for idx, text in enumerate(chunk_text(body)):
+            text_sections[str(idx)] = TextSection(text=text)
+
+        chapters[str(i)] = Chapter(title=f"Chapter {i}", text=text_sections)
+
+    return Book(title="War and Peace", content=BookContent(chapters=chapters))
+
+
+def parse_master_and_margarita(path: str) -> Book:
+    """
+    Parse the book "The Master and Margarita"
+    and return a properly typed Book object.
+    """
+    # Placeholder implementation
+    return Book(title="The Master and Margarita", content=BookContent(chapters={}))
