@@ -8,7 +8,7 @@ def write_jsonl(filename, data):
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
-def chunk_text(text: str, chunk_size: int = 2500) -> dict[str, str]:
+def chunk_text(text: str, chunk_size: int = 2500) -> list[str]:
     """
     Split the text into chunks of a specified size
     """
@@ -30,7 +30,7 @@ def chunk_text(text: str, chunk_size: int = 2500) -> dict[str, str]:
     if current_chunk:
         chunks.append("\n\n".join(current_chunk))
 
-    return {str(i): chunk for i, chunk in enumerate(chunks)}
+    return chunks
 
 
 def normalize_characters(text):

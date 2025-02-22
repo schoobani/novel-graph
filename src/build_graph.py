@@ -18,7 +18,7 @@ def get_paths(graphenv):
     base_dirs = {
         "karamazov": "data/brothers-karamazov",
         "solitude": "data/one-hundred-years-of-solitude",
-        "war_and_peace": "data/war_and_peace"
+        "war-and-peace": "data/war-and-peace",
     }
     return {
         "base": base_dirs[graphenv],
@@ -70,10 +70,10 @@ def _extract_character_pair(
 
 def process_character_pairs(
     data: dict, name_mapping: dict
-) -> tuple[Counter, list, int, int]:
+) -> tuple[Counter[str], list[tuple[str, str]], int, int]:
     """Process relations to extract character pairs and counts"""
-    character_counts = Counter()
-    character_pairs = []
+    character_counts: Counter[str] = Counter()
+    character_pairs: list[tuple[str, str]] = []
     total_relations = 0
     successful_relations = 0
 
@@ -225,7 +225,7 @@ def build_graph(data: dict) -> dict:
 
 
 if __name__ == "__main__":
-    if GRAPHENV not in ["karamazov", "solitude", "war_and_peace"]:
+    if GRAPHENV not in ["karamazov", "solitude", "war-and-peace"]:
         sys.exit("Invalid environment. Use 'karamazov' or 'solitude'")
 
     paths = get_paths(GRAPHENV)

@@ -63,9 +63,9 @@ def generate_respons(prompt):
 
 
 def generate_relations(parsed_content: dict):
-    relations = {}
+    relations: dict[str, dict[str, list[dict]]] = {}
     book_title = parsed_content["title"]
-    content = parsed_content["content"]
+    content = parsed_content["content"]["chapters"]
 
     for chapter_num, chapter in list(content.items()):
         relations[chapter_num] = {}
@@ -107,7 +107,9 @@ def generate_character_mapping(parsed_content: dict, relations: dict) -> dict:
                     )
                     .replace(
                         "_book_paragraph_",
-                        parsed_content["content"][chpater_idx]["text"][chunk_idx],
+                        parsed_content["content"]["chapters"][chpater_idx]["text"][
+                            chunk_idx
+                        ],
                     )
                     .replace("_character_A_", relation["from"])
                     .replace("_character_B_", relation["to"])
@@ -176,7 +178,9 @@ def collect_character_descriptions(
     relations: dict, character_permutations: list
 ) -> dict:
     """Collect descriptions for each character pair."""
-    relationship_descriptions = {perm: [] for perm in character_permutations}
+    relationship_descriptions: dict[tuple, list] = {
+        perm: [] for perm in character_permutations
+    }
 
     for chapter in relations.values():
         for chunk in chapter.values():
@@ -258,7 +262,9 @@ def generate_name_mapping(characters: list, book_title: str) -> dict:
         return {}
 
 
-def merge_mappings(prev_mapping: dict, next_mapping: dict) -> dict:
+def merge_mappings(
+    prev_mapping: dict[str, list[str]], next_mapping: dict[str, list[str]]
+) -> dict[str, list[str]]:
     """Merge mappings to create comprehensive character name groups."""
     prev_mapping = {
         k.lower(): [i.lower() for i in v if isinstance(i, str)]
@@ -268,7 +274,9 @@ def merge_mappings(prev_mapping: dict, next_mapping: dict) -> dict:
         k.lower(): [i.lower() for i in v if isinstance(i, str)]
         for k, v in next_mapping.items()
     }
-    merged = {}
+
+    merged: dict[str, list[str]] = {}
+
     for k, v in next_mapping.items():
         merged[k] = []
         for item in prev_mapping.get(k, []):
@@ -278,8 +286,9 @@ def merge_mappings(prev_mapping: dict, next_mapping: dict) -> dict:
                 merged[k].append(item.lower())
 
     for k, v in prev_mapping.items():
-        if k not in merged.keys():
+        if k not in merged:
             merged[k] = v
+
     return merged
 
 
@@ -328,7 +337,7 @@ def get_paths(graphenv):
     file_paths = {
         "karamazov": "data/brothers-karamazov/karamazov.txt",
         "solitude": "data/one-hundred-years-of-solitude/solitude.pdf",
-        "war_and_peace": "data/war-and-peace/war_and_peace.txt",
+        "war-and-peace": "data/war-and-peace/war-and-peace.txt",
     }
     base_dir = os.path.dirname(file_paths[graphenv])
     tmp_dir = os.path.join(base_dir, "tmp")
@@ -362,7 +371,7 @@ def process_parsed_content(paths, graphenv):
     parse_functions = {
         "karamazov": parse_karamazov,
         "solitude": parse_solitude,
-        "war_and_peace": parse_war_peace,
+        "war-and-peace": parse_war_peace,
     }
     return get_or_generate(
         paths["tmp"]["parsed_content"], parse_functions[graphenv], paths["input"]
@@ -398,7 +407,9 @@ def process_char_relations(paths, relations, characters):
     )
 
 
-def process_name_groups(paths: list[str], characters: list, book_title: str) -> dict:
+def process_name_groups(
+    paths: dict[str, dict[str, str]], characters: list[str], book_title: str
+) -> dict:
     return get_or_generate(
         paths["tmp"]["name_groups"],
         generate_name_groups,
@@ -408,7 +419,7 @@ def process_name_groups(paths: list[str], characters: list, book_title: str) -> 
 
 
 def main():
-    if GRAPHENV not in ["karamazov", "solitude", "war_and_peace"]:
+    if GRAPHENV not in ["karamazov", "solitude", "war-and-peace"]:
         return
 
     paths = get_paths(GRAPHENV)

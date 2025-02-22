@@ -3,86 +3,72 @@
         {
             "id": 0,
             "name": "aureliano buend\u00eda",
-            "val": 478,
-            "color": "#97c2fc"
+            "val": 478
         },
         {
             "id": 1,
             "name": "jose arcadio buend\u00eda",
-            "val": 245,
-            "color": "#97c2fc"
+            "val": 245
         },
         {
             "id": 2,
             "name": "\u00farsula iguar\u00e1n",
-            "val": 257,
-            "color": "#97c2fc"
+            "val": 257
         },
         {
             "id": 3,
             "name": "melqu\u00edades",
-            "val": 23,
-            "color": "#97c2fc"
+            "val": 23
         },
         {
             "id": 4,
             "name": "santa sof\u00eda de la piedad",
-            "val": 43,
-            "color": "#97c2fc"
+            "val": 43
         },
         {
             "id": 5,
             "name": "remedios the beauty",
-            "val": 57,
-            "color": "#97c2fc"
+            "val": 57
         },
         {
             "id": 6,
             "name": "amaranta buend\u00eda",
-            "val": 170,
-            "color": "#97c2fc"
+            "val": 170
         },
         {
             "id": 7,
             "name": "arcadio buend\u00eda",
-            "val": 45,
-            "color": "#97c2fc"
+            "val": 45
         },
         {
             "id": 8,
             "name": "rebeca buend\u00eda",
-            "val": 78,
-            "color": "#97c2fc"
+            "val": 78
         },
         {
             "id": 9,
             "name": "don apolinar moscote",
-            "val": 27,
-            "color": "#97c2fc"
+            "val": 27
         },
         {
             "id": 10,
             "name": "pietro crespi",
-            "val": 39,
-            "color": "#97c2fc"
+            "val": 39
         },
         {
             "id": 11,
             "name": "colonel gerineldo marquez",
-            "val": 23,
-            "color": "#97c2fc"
+            "val": 23
         },
         {
             "id": 12,
             "name": "fernanda del carpio",
-            "val": 124,
-            "color": "#97c2fc"
+            "val": 124
         },
         {
             "id": 13,
             "name": "petra cotes",
-            "val": 37,
-            "color": "#97c2fc"
+            "val": 37
         }
     ],
     "links": [

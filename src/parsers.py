@@ -1,5 +1,6 @@
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+from typing import Any
 
 from pypdf import PdfReader
 from tqdm import tqdm
@@ -8,14 +9,9 @@ from helpers import chunk_text, normalize_characters
 
 
 @dataclass
-class TextSection:
-    text: str
-
-
-@dataclass
 class Chapter:
     title: str
-    text: dict[str, TextSection]
+    text: dict[str, str]
 
 
 @dataclass
@@ -29,7 +25,7 @@ class Book:
     content: BookContent
 
 
-def parse_karamazov(path: str) -> Book:
+def parse_karamazov(path: str) -> Any:
     """
     Parse the book "The Brothers Karamazov" by Fyodor Dostoevsky
     and return a properly typed Book object.
@@ -48,16 +44,18 @@ def parse_karamazov(path: str) -> Book:
         body = "\n".join(lines[2:]).strip()
 
         # Convert chunked text into TextSection objects
-        text_sections: dict[str, TextSection] = {}
+        text_sections: dict[str, str] = {}
         for idx, text in enumerate(chunk_text(body)):
-            text_sections[str(idx)] = TextSection(text=text)
+            text_sections[str(idx)] = text
 
         chapters[str(i)] = Chapter(title=title, text=text_sections)
 
-    return Book(title="The Brothers Karamazov", content=BookContent(chapters=chapters))
+    return asdict(
+        Book(title="The Brothers Karamazov", content=BookContent(chapters=chapters))
+    )
 
 
-def parse_solitude(path: str) -> Book:
+def parse_solitude(path: str) -> Any:
     """
     Parse the book "One Hundred Years of Solitude" by Gabriel García Márquez
     and return a properly typed Book object.
@@ -71,12 +69,7 @@ def parse_solitude(path: str) -> Book:
     replace_strs = [
         "ONE HUNDRED YEARS OF SOLITUDE",
         "GABRIEL GARCIA MARQUEZ",
-        """Dear Friends, this is a backup copy of the original works in my personal library. I had a bad luck in get ting back the books
-I lend to my friends. I am trying to make the text in  digital form to ensure that I am not going to loose  a n y  o f  t h e m .  A s  I
-have an original printed edition, its sure that the w riter/publisher already got their share. As on my kno wledge there is no
-legal issues in giving my library collections to my  friends, those who loves to read. Kindly delete this f ile after reading and
-it would be taken as I got the book back.
-With Thanks and regards your friend Antony. mail me to  antonyboban@gmail.com""",
+        """Dear Friends, this is a backup copy of the original works in my personal library. I had a bad luck in get ting back the books \nI lend to my friends. I am trying to make the text in  digital form to ensure that I am not going to loose  a n y  o f  t h e m .  A s  I  \nhave an original printed edition, its sure that the w riter/publisher already got their share. As on my kno wledge there is no \nlegal issues in giving my library collections to my  friends, those who loves to read. Kindly delete this f ile after reading and \nit would be taken as I got the book back.  \nWith Thanks and regards your friend Antony. mail me to  antonyboban@gmail.com""",
     ]
 
     for rstr in replace_strs:
@@ -90,19 +83,22 @@ With Thanks and regards your friend Antony. mail me to  antonyboban@gmail.com"""
         chap = chap.strip()[3:].strip()
         chap = re.sub(r"\s*\d+\s*", "\n\n\n", chap)
 
-        text_sections: dict[str, TextSection] = {}
+        text_sections: dict[str, str] = {}
         for i, chunk in enumerate(chap.split("\n\n\n")):
             if chunk.strip():
-                text_sections[str(i)] = TextSection(text=chunk.strip())
+                text_sections[str(i)] = chunk.strip()
 
         chapters[str(chap_id)] = Chapter(title=f"Chapter {chap_id}", text=text_sections)
 
-    return Book(
-        title="One Hundred Years of Solitude", content=BookContent(chapters=chapters)
+    return asdict(
+        Book(
+            title="One Hundred Years of Solitude",
+            content=BookContent(chapters=chapters),
+        )
     )
 
 
-def parse_war_peace(path: str) -> Book:
+def parse_war_peace(path: str) -> Any:
     """
     Parse the book "War and Peace" by Leo Tolstoy
     and return a properly typed Book object.
@@ -118,16 +114,16 @@ def parse_war_peace(path: str) -> Book:
         lines = chapter.split("\n")
         body = "\n".join(lines).strip()
 
-        text_sections: dict[str, TextSection] = {}
+        text_sections: dict[str, str] = {}
         for idx, text in enumerate(chunk_text(body)):
-            text_sections[str(idx)] = TextSection(text=text)
+            text_sections[str(idx)] = text
 
         chapters[str(i)] = Chapter(title=f"Chapter {i}", text=text_sections)
 
-    return Book(title="War and Peace", content=BookContent(chapters=chapters))
+    return asdict(Book(title="War and Peace", content=BookContent(chapters=chapters)))
 
 
-def parse_master_and_margarita(path: str) -> Book:
+def parse_master_and_margarita(path: str) -> Any:
     """
     Parse the book "The Master and Margarita"
     and return a properly typed Book object.
