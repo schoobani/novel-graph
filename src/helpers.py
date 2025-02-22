@@ -8,11 +8,11 @@ def write_jsonl(filename, data):
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
-def chunk_text(text: str, chunk_size: int = 2500) -> list[str]:
+def chunk_text(text: str, chunk_size: int = 2500, sep: str = "\n") -> list[str]:
     """
     Split the text into chunks of a specified size
     """
-    paragraphs = text.split("\n\n")
+    paragraphs = text.split(sep)
     chunks = []
     current_chunk = []
     current_length = 0
@@ -23,12 +23,12 @@ def chunk_text(text: str, chunk_size: int = 2500) -> list[str]:
             current_length += len(paragraph) + 1  # Account for newline
         else:
             if current_chunk:
-                chunks.append("\n\n".join(current_chunk))
+                chunks.append(sep.join(current_chunk))
             current_chunk = [paragraph]
             current_length = len(paragraph) + 1
 
     if current_chunk:
-        chunks.append("\n\n".join(current_chunk))
+        chunks.append(sep.join(current_chunk))
 
     return chunks
 

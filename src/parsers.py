@@ -45,7 +45,7 @@ def parse_karamazov(path: str) -> Any:
 
         # Convert chunked text into TextSection objects
         text_sections: dict[str, str] = {}
-        for idx, text in enumerate(chunk_text(body)):
+        for idx, text in enumerate(chunk_text(body, chunk_size=2500, sep="\n\n")):
             text_sections[str(idx)] = text
 
         chapters[str(i)] = Chapter(title=title, text=text_sections)
@@ -115,7 +115,7 @@ def parse_war_peace(path: str) -> Any:
         body = "\n".join(lines).strip()
 
         text_sections: dict[str, str] = {}
-        for idx, text in enumerate(chunk_text(body)):
+        for idx, text in enumerate(chunk_text(body, chunk_size=2500, sep="\n\n")):
             text_sections[str(idx)] = text
 
         chapters[str(i)] = Chapter(title=f"Chapter {i}", text=text_sections)
@@ -123,10 +123,45 @@ def parse_war_peace(path: str) -> Any:
     return asdict(Book(title="War and Peace", content=BookContent(chapters=chapters)))
 
 
-def parse_master_and_margarita(path: str) -> Any:
-    """
-    Parse the book "The Master and Margarita"
-    and return a properly typed Book object.
-    """
-    # Placeholder implementation
-    return Book(title="The Master and Margarita", content=BookContent(chapters={}))
+def parse_master_and_margarita(path: str) -> dict:
+    """Parse 'The Master and Margarita' into a structured Book object."""
+    reader = PdfReader(path)
+    corpus = "\n".join(
+        page.extract_text().encode("utf-8").decode("utf-8")
+        for page in tqdm(reader.pages)
+    )
+
+    for rstr in ["Mikhail Bulgakov– Master and Margarita", "Mikhail Bulgakov"]:
+        corpus = corpus.replace(rstr, "")
+
+    corpus, epilogue = corpus.split("Epilogue", maxsplit=1)
+
+    chapters = {
+        str(idx + 1): Chapter(
+            title=chap.split("\n", 1)[0],
+            text={
+                str(i): chunk
+                for i, chunk in enumerate(
+                    chunk_text(
+                        chap[len(chap.split("\n", 1)[0]) :].strip(),
+                        chunk_size=2500,
+                        sep="\n",
+                    )
+                )
+            },
+        )
+        for idx, chap in enumerate(re.split(r"Chapter\s+\d+\s", corpus)[1:])
+        if chap.strip()
+    }
+
+    chapters[str(len(chapters) + 1)] = Chapter(
+        title="Epilogue",
+        text={
+            str(i): chunk
+            for i, chunk in enumerate(chunk_text(epilogue, chunk_size=2500, sep="\n"))
+        },
+    )
+
+    return asdict(
+        Book(title="The Master and Margarita", content=BookContent(chapters=chapters))
+    )

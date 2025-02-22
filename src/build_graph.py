@@ -19,6 +19,7 @@ def get_paths(graphenv):
         "karamazov": "data/brothers-karamazov",
         "solitude": "data/one-hundred-years-of-solitude",
         "war-and-peace": "data/war-and-peace",
+        "master-and-margarita": "data/master-and-margarita",
     }
     return {
         "base": base_dirs[graphenv],
@@ -225,8 +226,13 @@ def build_graph(data: dict) -> dict:
 
 
 if __name__ == "__main__":
-    if GRAPHENV not in ["karamazov", "solitude", "war-and-peace"]:
-        sys.exit("Invalid environment. Use 'karamazov' or 'solitude'")
+    if GRAPHENV not in [
+        "karamazov",
+        "solitude",
+        "war-and-peace",
+        "master-and-margarita",
+    ]:
+        sys.exit("Invalid environment")
 
     paths = get_paths(GRAPHENV)
     data = read_json(paths["data"])

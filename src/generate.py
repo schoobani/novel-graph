@@ -15,6 +15,7 @@ from helpers import (
 )
 from parsers import (
     parse_karamazov,
+    parse_master_and_margarita,
     parse_solitude,
     parse_war_peace,
 )
@@ -338,6 +339,7 @@ def get_paths(graphenv):
         "karamazov": "data/brothers-karamazov/karamazov.txt",
         "solitude": "data/one-hundred-years-of-solitude/solitude.pdf",
         "war-and-peace": "data/war-and-peace/war-and-peace.txt",
+        "master-and-margarita": "data/master-and-margarita/master-and-margarita.pdf",
     }
     base_dir = os.path.dirname(file_paths[graphenv])
     tmp_dir = os.path.join(base_dir, "tmp")
@@ -372,6 +374,7 @@ def process_parsed_content(paths, graphenv):
         "karamazov": parse_karamazov,
         "solitude": parse_solitude,
         "war-and-peace": parse_war_peace,
+        "master-and-margarita": parse_master_and_margarita,
     }
     return get_or_generate(
         paths["tmp"]["parsed_content"], parse_functions[graphenv], paths["input"]
@@ -419,7 +422,12 @@ def process_name_groups(
 
 
 def main():
-    if GRAPHENV not in ["karamazov", "solitude", "war-and-peace"]:
+    if GRAPHENV not in [
+        "karamazov",
+        "solitude",
+        "war-and-peace",
+        "master-and-margarita",
+    ]:
         return
 
     paths = get_paths(GRAPHENV)
