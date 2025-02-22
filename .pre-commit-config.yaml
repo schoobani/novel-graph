@@ -1,0 +1,23 @@
+repos:
+- repo: local
+  hooks:
+  - id: Lint using ruff
+    name: ruff-lint
+    entry: uv run ruff
+    language: system
+    types: [python]
+    require_serial: true
+    args:
+      - --fix
+  - id: Format using ruff
+    name: ruff-format
+    entry: uv run ruff format
+    language: system
+    types: [ python ]
+    require_serial: true
+  - id: mypy
+    name: mypy
+    entry: uv run mypy
+    language: system
+    types: [python]
+    require_serial: true
