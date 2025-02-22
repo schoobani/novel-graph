@@ -1,8 +1,9 @@
-import json
+import re
+
 from pypdf import PdfReader
 from tqdm import tqdm
-import re
-import os
+
+from helpers import chunk_text, normalize_characters
 
 
 def parse_karamazov(book_path: str) -> dict[int, dict[str, list[str]]]:
@@ -45,11 +46,11 @@ def parse_solitude(book_path) -> dict:
     replace_strs = [
         "ONE HUNDRED YEARS OF SOLITUDE",
         "GABRIEL GARCIA MARQUEZ",
-        """Dear Friends, this is a backup copy of the original works in my personal library. I had a bad luck in get ting back the books 
-I lend to my friends. I am trying to make the text in  digital form to ensure that I am not going to loose  a n y  o f  t h e m .  A s  I  
-have an original printed edition, its sure that the w riter/publisher already got their share. As on my kno wledge there is no 
-legal issues in giving my library collections to my  friends, those who loves to read. Kindly delete this f ile after reading and 
-it would be taken as I got the book back.  
+        """Dear Friends, this is a backup copy of the original works in my personal library. I had a bad luck in get ting back the books
+I lend to my friends. I am trying to make the text in  digital form to ensure that I am not going to loose  a n y  o f  t h e m .  A s  I
+have an original printed edition, its sure that the w riter/publisher already got their share. As on my kno wledge there is no
+legal issues in giving my library collections to my  friends, those who loves to read. Kindly delete this f ile after reading and
+it would be taken as I got the book back.
 With Thanks and regards your friend Antony. mail me to  antonyboban@gmail.com""",
     ]
 
@@ -95,66 +96,3 @@ def parse_war_peace(book_path: str) -> dict[int, dict[str, list[str]]]:
         "content": parsed_content,
     }
     return final_content
-
-
-def write_jsonl(filename, data):
-    with open(filename, "w", encoding="utf-8") as f:
-        for entry in data:
-            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-
-
-def chunk_text(text: str, chunk_size: int = 2500) -> list[str]:
-    """
-    Split the text into chunks of a specified size
-    """
-    paragraphs = text.split("\n\n")
-    chunks = []
-    current_chunk = []
-    current_length = 0
-
-    for paragraph in paragraphs:
-        if current_length + len(paragraph) <= chunk_size:
-            current_chunk.append(paragraph)
-            current_length += len(paragraph) + 1  # Account for newline
-        else:
-            if current_chunk:
-                chunks.append("\n\n".join(current_chunk))
-            current_chunk = [paragraph]
-            current_length = len(paragraph) + 1
-
-    if current_chunk:
-        chunks.append("\n\n".join(current_chunk))
-
-    return {i: chunk for i, chunk in enumerate(chunks)}
-
-
-def normalize_characters(text):
-    return (
-        text.replace("ú", "u")
-        .replace("í", "i")
-        .replace("é", "e")
-        .replace("á", "a")
-        .replace("ó", "o")
-        .replace("Ú", "U")
-        .replace("Í", "I")
-        .replace("É", "E")
-        .replace("Á", "A")
-        .replace("Ó", "O")
-        .replace("ï", "i")
-        .replace("ü", "u")
-        .replace("ö", "o")
-        .replace("ä", "a")
-        .replace("Ë", "E")
-        .replace("ÿ", "y")
-    )
-
-
-def read_json(path):
-    with open(path, "r") as f:
-        return json.load(f)
-
-
-def write_json(path, data, indent=4):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(data, f, indent=indent)

@@ -1,10 +1,10 @@
-from helpers import read_json, write_json
+import logging
 import os
 import sys
 from collections import Counter
-import numpy as np
 from typing import Optional
-import logging
+
+from helpers import read_json, write_json
 
 GRAPHENV = sys.argv[1]
 

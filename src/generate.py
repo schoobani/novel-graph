@@ -1,29 +1,29 @@
-from heapq import merge
 import itertools
-import logging
-
-from click import prompt
-from openai import OpenAI
-import sys
-import os
 import json
-from tqdm import tqdm
+import logging
+import os
+import sys
 from collections import Counter
+
 import numpy as np
+from openai import OpenAI
+from tqdm import tqdm
 
 from helpers import (
+    read_json,
+    write_json,
+)
+from parsers import (
     parse_karamazov,
     parse_solitude,
     parse_war_peace,
-    write_json,
-    read_json,
 )
 from prompts import (
-    relation_extraction_prompt,
-    character_mapping_prompt,
     character_description_prompt,
-    relation_description_prompt,
+    character_mapping_prompt,
     name_group_prompt,
+    relation_description_prompt,
+    relation_extraction_prompt,
 )
 
 GRAPHENV = sys.argv[1]

@@ -36,7 +36,7 @@ relation_extraction_prompt = """
     "from" and "to": Represent the two characters involved in the relationship.
     "label": The type of relationship (e.g., "parent", "friend", "spouse", etc.).
     "description": A short context or quote from the paragraph that justifies or illustrates the relationship.
-    
+
     Key Requirements:
 
     Capture all relationships mentioned or implied in the text.
@@ -53,16 +53,16 @@ character_mapping_prompt = """
     Instructions:
     Character Identification: In the provided text, two characters— _character_A_ and _character_B_ —are mentioned. Identify them based on how their names commonly appear in the novel.
 
-    1. **Name Correction**: For each character, retrieve their most commonly used full name throughout the novel. Pay special attention to whether they are referred to by middle names, abbreviations, or incomplete forms of their names, and ensure consistency with their full identity.  
-    2. **Pronoun Replacement**: If any of these characters are referred to by pronouns such as he, she, or they, replace the pronoun with the correct full name of the character.  
-    3. **Typographical Corrections**: Correct any spelling or typographical errors in the characters' names that may appear in the text.  
-    4. **Familial Relationships**: If any relationships are mentioned such as "his child," "her father," or "his parents," identify the family member being referenced and replace the relationship term with the full name of the relevant character as they are identified in the book. Ensure that the relationship context is preserved.  
-    5. **Do not use parentheses in any part of the output, including names.**  
+    1. **Name Correction**: For each character, retrieve their most commonly used full name throughout the novel. Pay special attention to whether they are referred to by middle names, abbreviations, or incomplete forms of their names, and ensure consistency with their full identity.
+    2. **Pronoun Replacement**: If any of these characters are referred to by pronouns such as he, she, or they, replace the pronoun with the correct full name of the character.
+    3. **Typographical Corrections**: Correct any spelling or typographical errors in the characters' names that may appear in the text.
+    4. **Familial Relationships**: If any relationships are mentioned such as "his child," "her father," or "his parents," identify the family member being referenced and replace the relationship term with the full name of the relevant character as they are identified in the book. Ensure that the relationship context is preserved.
+    5. **Do not use parentheses in any part of the output, including names.**
     6. Do not use multiple names, map only to a single name per character.
-    7. **Output Format**: Present the relationships between the mentioned characters and their correct full names in the following JSON structure. 
+    7. **Output Format**: Present the relationships between the mentioned characters and their correct full names in the following JSON structure.
     \n
     "relations": [
-        { 
+        {
             "_character_A_": "correct full names"
         },
         {
@@ -96,7 +96,7 @@ character_description_prompt = """
 
 relation_description_prompt = """
     Context:
-    You are analyzing the relationship between two characters, _character_A_ and _character_B_ , in the novel _book_title_ . 
+    You are analyzing the relationship between two characters, _character_A_ and _character_B_ , in the novel _book_title_ .
     Understanding their interactions, conflicts, and development within the story is crucial for literary analysis.
 
     High level relation points of the characters:
@@ -120,7 +120,7 @@ relation_description_prompt = """
     - If applicable, use language and style that is simple and and understandable for general reader.
     - Avoid extra information or unrelated content such as, here is youre description, etc.
 
-    description: 
+    description:
 """
 
 name_group_prompt = """

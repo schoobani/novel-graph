@@ -25,3 +25,10 @@ dependencies = [
     "typing-extensions==4.12.2",
 ]
 
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
