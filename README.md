@@ -1,13 +1,37 @@
-## Novel Graph
-A tool to extract character interaction graphs from novels. 
+# Novel Graph  
+A tool for extracting character interaction graphs from novels.  
 
-### How is the graph built?
-A pipeline that analyzes the novel in chunks using desired llm and generates the following:
+## How is the Graph Built?  
+This pipeline processes novels in chunks using OpenAI models to generate:  
 
-- All relationships between characters
-- Character descriptions
-- Detailed explanations of interactions between characters
+- **Character relationships** – Identifies and maps all connections between characters.  
+- **Character descriptions** – Provides summaries of each character.  
+- **Interaction details** – Explains character interactions in depth.  
 
-### Examples
-- The Brothers Karamazov – A masterpiece by Fyodor Dostoevsky schoobani.github.io/novel-graph-app.
-- One Hundred Years of Solitude – Coming soon.
+## How to Run  
+
+1. Create and activate a virtual environment:  
+   ```sh
+   uv venv
+   source .venv/bin/activate
+   uv lock
+   uv sync
+   ```
+
+2. Set your OpenAI API key:  
+   ```sh
+   export OPENAI_KEY='<your_api_key>'
+   ```
+
+3. Make the script executable:  
+   ```sh
+   chmod +x generate.sh
+   ```
+
+4. Generate the character graph for a novel:  
+   ```sh
+   ./generate.sh karamazov  # Or use: solitude, master-and-margarita, war-and-peace
+   ```  
+
+## Request a Novel  
+Would you like to see a specific book visualized in the graph? Open an issue so I can pick it up or get your hands dirty and open a PR. 
